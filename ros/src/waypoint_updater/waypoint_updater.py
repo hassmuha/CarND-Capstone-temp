@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 
 import rospy
+import numpy as np
 from geometry_msgs.msg import PoseStamped
 from styx_msgs.msg import Lane, Waypoint
 from scipy.spatial import KDTree
+
 
 import math
 
@@ -90,7 +92,7 @@ class WaypointUpdater(object):
         # callback function which is called on receiving the base waypoints
         self.base_waypoints = waypoints
         if not self.waypoints_2d: #to make a 2d
-            self.waypoints_2d = [[waypoint.pose.pose.position.x, waypoint.pose.pose.position.y] for waypoint in waypoints.waypoint]
+            self.waypoints_2d = [[waypoint.pose.pose.position.x, waypoint.pose.pose.position.y] for waypoint in waypoints.waypoints]
             self.waypoint_tree = KDTree(self.waypoints_2d)
 
     def traffic_cb(self, msg):
