@@ -26,7 +26,7 @@ class Controller(object):
         tau = 0.5 # 1/(2pi*tau) = cutoff frequency
         ts = 0.02 # sample time
 
-        self.vel_lpf = LowPassFilter(tau, ts)
+        self.vel_lpf = LowPassFilter(tau, ts) #velocity coming in with the messages are noisy so low pass filter is applied
 
         self.vehicle_mass = vehicle_mass
         self.fuel_capacity = fuel_capacity
@@ -44,11 +44,11 @@ class Controller(object):
             self.throttle_controller.reset()
             return 0., 0., 0.
 
-        current_vel = self.vel_lpf.filt(current_vel)
+        current_vel = self.vel_lpf.filt(current_vel) #low pass filtered velocity
 
         steering = self.yaw_controller.get_steering(linear_vel, angular_vel, current_vel)
 
-        vel_error = linear_vel - current_vel
+        vel_error = linear_vel - current_vel #whatever comes in - low pass filtered velocity 
         self.last_vel = current_vel
 
         current_time = rospy.get_time()
@@ -61,7 +61,7 @@ class Controller(object):
         if linear_vel == 0. and current_vel < 0.1:
             throttle = 0
             brake = 400 #N*m - to hold the car in place if we are stopped at a light, Acceleration nearly equal to 1m/s2
-        elif throttle < 0.1 and vel_error < 0: # TODO when?
+        elif throttle < 0.1 and vel_error < 0: # when the current_vel is higher than linear_vel
             throttle = 0
             decel = max(vel_error,self.decel_limit)
             brake = abs(decel)*self.vehicle_mass*self.wheel_radius # Torque N*m
